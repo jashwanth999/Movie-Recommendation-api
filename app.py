@@ -5,7 +5,6 @@ from sklearn.feature_extraction.text import CountVectorizer
 import pandas as pd
 from flask_cors import CORS, cross_origin
 import requests
-import pickle as pkl
 import json
 from tmdbv3api import TMDb
 import numpy as np
