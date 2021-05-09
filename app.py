@@ -81,6 +81,7 @@ def get_data2(x):
     data_json = response.json()
     data.append(data_json)
     return data
+# FLASK
 app = Flask(__name__)
 cors = CORS(app)
 @app.route('/')
@@ -112,4 +113,4 @@ def get(movie_name):
             return jsonify({"movie not found in database"})
         return jsonify(result)
 if __name__ == '__main__':
-    app.run(debug=True,port=5000)
+    app.run(port=5000)
