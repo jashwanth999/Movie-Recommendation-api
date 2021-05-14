@@ -18,6 +18,23 @@ from sklearn.feature_extraction.text import CountVectorizer,TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
 vectorizer=pkl.load(open('vectorizerer.pkl', 'rb'))
 clt=pkl.load(open('nlp_model.pkl', 'rb'))
+def getdirector(x):
+    data = []
+    result = tmdb_movie.search(x)
+    movie_id = result[0].id
+    response = requests.get(
+        "https://api.themoviedb.org/3/movie/{}/credits?api_key=8b5da40bcd2b5fa4afe55c468001ad8a".format(
+            movie_id))
+    data_json = response.json()
+    data.append(data_json)
+    crew=data[0]['crew']
+  
+    director=[]
+    for c in crew:
+        if c['job']=='Director':
+            director.append(c['name'])
+            break
+    return director
 def getreview(x):
     data=[]
     result=tmdb_movie.search(x)
@@ -56,7 +73,6 @@ def get_data(x):
     data.append(data_json2)
     data.append(data_json3)
     return data
-
 def getcomb(movie_data):
     cast_data=movie_data[1]['cast']
     cast=[]
@@ -127,6 +143,10 @@ def getmovie(movie_name):
 def getreviews(movie_name):
     data=getrating(movie_name)
     return jsonify(data)
+@app.route('/getdirector/<movie_name>', methods=["GET"])
+def getdirectorname(movie_name):
+    data=getdirector(movie_name)
+    return jsonify(data)
 @app.route('/send/<movie_name>', methods=["GET"])
 def get(movie_name):
     if request.method=="GET":
@@ -143,4 +163,4 @@ def get(movie_name):
             return jsonify({"movie not found in database"})
         return jsonify(result)
 if __name__ == '__main__':
-    app.run(port=5000)
+    app.run(debug=True,port=5000)
