@@ -9,6 +9,7 @@ import json
 from tmdbv3api import TMDb
 import pickle as pkl
 import numpy as np
+import random
 tmdb=TMDb()
 tmdb.api_key='8b5da40bcd2b5fa4afe55c468001ad8a'
 from  tmdbv3api import Movie
@@ -18,6 +19,20 @@ from sklearn.feature_extraction.text import CountVectorizer,TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
 vectorizer=pkl.load(open('vectorizerer.pkl', 'rb'))
 clt=pkl.load(open('nlp_model.pkl', 'rb'))
+url = [
+    "http://api.themoviedb.org/3/discover/movie?api_key=360a9b5e0dea438bac3f653b0e73af47&primary_release_year=2015&adult=false",
+    "http://api.themoviedb.org/3/discover/movie?api_key=360a9b5e0dea438bac3f653b0e73af47&primary_release_year=2014&adult=false",
+    "https://api.themoviedb.org/3/movie/popular?api_key=8b5da40bcd2b5fa4afe55c468001ad8a&language=en-US&page=1&adult=false",
+    "https://api.themoviedb.org/3/movie/popular?api_key=8b5da40bcd2b5fa4afe55c468001ad8a&language=en-US&page=2&adult=false",
+    "https://api.themoviedb.org/3/movie/popular?api_key=8b5da40bcd2b5fa4afe55c468001ad8a&language=en-US&page=3&adult=false",
+    "https://api.themoviedb.org/3/discover/movie?api_key=360a9b5e0dea438bac3f653b0e73af47&with_genres=18&adult=false",
+    "http://api.themoviedb.org/3/discover/movie?api_key=360a9b5e0dea438bac3f653b0e73af47&primary_release_year=2020&adult=false",
+    "http://api.themoviedb.org/3/discover/movie?api_key=360a9b5e0dea438bac3f653b0e73af47&primary_release_year=2019&adult=false",
+    "http://api.themoviedb.org/3/discover/movie?api_key=360a9b5e0dea438bac3f653b0e73af47&primary_release_year=2017&adult=false",
+    "http://api.themoviedb.org/3/discover/movie?api_key=360a9b5e0dea438bac3f653b0e73af47&primary_release_year=2016&adult=false",
+    "https://api.themoviedb.org/3/discover/movie?api_key=360a9b5e0dea438bac3f653b0e73af47&with_genres=27",
+    "https://api.themoviedb.org/3/discover/movie?api_key=360a9b5e0dea438bac3f653b0e73af47&with_genres=16"
+  ]
 def getdirector(x):
     data = []
     result = tmdb_movie.search(x)
@@ -28,13 +43,26 @@ def getdirector(x):
     data_json = response.json()
     data.append(data_json)
     crew=data[0]['crew']
-  
+
     director=[]
     for c in crew:
         if c['job']=='Director':
             director.append(c['name'])
             break
     return director
+def get_swipe():
+    data=[]
+    val=random.choice(url)
+    for i in range(5):
+        lis=[]
+        response = requests.get(
+            val+"&page="+str(i+1))
+        data_json = response.json()
+        lis.append(data_json["results"])
+        for i in lis[0]:
+            data.append(i)
+    return data
+
 def getreview(x):
     data=[]
     result=tmdb_movie.search(x)
@@ -112,9 +140,11 @@ def get_recommendations(title):
     idx=indices[title]
     sim_scores = list(enumerate(cosine_sim[idx]))
     sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
-    sim_scores = sim_scores[1:13]
+    sim_scores = sim_scores[1:10]
     movie_indices = [i[0] for i in sim_scores]
     return df2['title_x'].iloc[movie_indices]
+
+
 def get_data2(x):
     data=[]
     result=tmdb_movie.search(x)
@@ -146,6 +176,10 @@ def getreviews(movie_name):
 @app.route('/getdirector/<movie_name>', methods=["GET"])
 def getdirectorname(movie_name):
     data=getdirector(movie_name)
+    return jsonify(data)
+@app.route('/getswipe', methods=["GET"])
+def getswipe():
+    data=get_swipe()
     return jsonify(data)
 @app.route('/send/<movie_name>', methods=["GET"])
 def get(movie_name):
