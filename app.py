@@ -171,7 +171,8 @@ def getnames():
 @app.route('/getmovie/<movie_name>',methods=["GET"])
 def getmovie(movie_name):
    data=get_data2(movie_name)
-   return jsonify(data[1])
+   return jsonify(data)
+
 @app.route('/getreview/<movie_name>', methods=["GET"])
 def getreviews(movie_name):
     data=getrating(movie_name)
