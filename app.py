@@ -149,9 +149,12 @@ def get_data2(x):
     data=[]
     result=tmdb_movie.search(x)
     movie_id=result[0].id
+    trailer=requests.get("https://api.themoviedb.org/3/movie/{}/videos?api_key=8b5da40bcd2b5fa4afe55c468001ad8a&language=en-US".format(movie_id))
     response=requests.get("https://api.themoviedb.org/3/movie/{}?api_key=8b5da40bcd2b5fa4afe55c468001ad8a".format(movie_id))
     data_json = response.json()
+    trailer=trailer.json()
     data.append(data_json)
+    data.append(trailer)
     return data
 # FLASK
 app = Flask(__name__)
@@ -168,7 +171,7 @@ def getnames():
 @app.route('/getmovie/<movie_name>',methods=["GET"])
 def getmovie(movie_name):
    data=get_data2(movie_name)
-   return jsonify(data[0])
+   return jsonify(data[1])
 @app.route('/getreview/<movie_name>', methods=["GET"])
 def getreviews(movie_name):
     data=getrating(movie_name)
