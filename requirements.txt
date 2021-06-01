@@ -13,3 +13,4 @@ tmdbv3api==1.6.1
 requests==2.23.0
 Flask-Cors==3.0.10
 pickleshare==0.7.5
+beautifulsoup4==4.9.1
