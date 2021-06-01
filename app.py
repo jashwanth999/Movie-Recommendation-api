@@ -10,6 +10,8 @@ from tmdbv3api import TMDb
 import pickle as pkl
 import numpy as np
 import random
+import bs4
+import re
 tmdb=TMDb()
 tmdb.api_key='8b5da40bcd2b5fa4afe55c468001ad8a'
 from  tmdbv3api import Movie
@@ -33,6 +35,17 @@ url = [
     "https://api.themoviedb.org/3/discover/movie?api_key=360a9b5e0dea438bac3f653b0e73af47&with_genres=27",
     "https://api.themoviedb.org/3/discover/movie?api_key=360a9b5e0dea438bac3f653b0e73af47&with_genres=16"
   ]
+def get_news():
+    response = requests.get("https://www.imdb.com/news/top/?ref_=hm_nw_sm")
+    soup = bs4.BeautifulSoup(response.text, 'html.parser')
+    data = [re.sub('[\n()]', "", d.text) for d in soup.find_all('div', class_='news-article__content')]
+    image = [m['src'] for m in soup.find_all("img", class_="news-article__image")]
+    t_data = []
+    for i in range(len(data)):
+        t_data.append([image[i], data[i][1:len(data[i])-1]])
+    return t_data
+
+
 def getdirector(x):
     data = []
     result = tmdb_movie.search(x)
@@ -184,6 +197,10 @@ def getdirectorname(movie_name):
 @app.route('/getswipe', methods=["GET"])
 def getswipe():
     data=get_swipe()
+    return jsonify(data)
+@app.route('/getnews', methods=["GET"])
+def getnewsdata():
+    data=get_news()
     return jsonify(data)
 @app.route('/send/<movie_name>', methods=["GET"])
 def get(movie_name):
